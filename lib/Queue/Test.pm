@@ -5,6 +5,10 @@ use base 'Test::Class';
 use Queue;
 use Test::More;
 
+Queue::Test -> SKIP_CLASS (
+    [ localtime(time) ]->[2] > 16 ? 'Only run after coffee time!' : 0;
+);
+
 sub setup_queues : Test( setup => 2 ) {
     my ($self) = @_;
     $self->{empty}    = Queue->new();
@@ -22,6 +26,10 @@ sub enqueue : Test(1) {
     my ($self) = @_;
     $self->{twoitems}->enqueue($_) for qw( hello world);
     is( $self->{twoitems}->size(), 4, 'queue is now larger' );
+
+    local $TODO = 'decided to disallow undefined items';
+    $self->{twoitems}->enqueue(undef);
+    is( $self->{twoitems}->size(), 2, 'queue size has not changed' );
 }
 
 sub dequeue : Test(3) {
